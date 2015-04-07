@@ -9,8 +9,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
-
-
 @Entity
 public class BankingTransaction {
 	@Id
@@ -24,6 +22,56 @@ public class BankingTransaction {
 	private Account receiverAccount;
 
 	private Date transactionDate;
+	public BankingTransaction(){
+		
+	}
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public long getTransaction_id() {
+		return transaction_id;
+	}
+
+	public void setTransaction_id(long transaction_id) {
+		this.transaction_id = transaction_id;
+	}
+
+	public long getAmount() {
+		return amount;
+	}
+
+	public void setAmount(long amount) {
+		this.amount = amount;
+	}
+
+	public Account getSenderAccount() {
+		return senderAccount;
+	}
+
+	public void setSenderAccount(Account senderAccount) {
+		this.senderAccount = senderAccount;
+	}
+
+	public Account getReceiverAccount() {
+		return receiverAccount;
+	}
+
+	public void setReceiverAccount(Account receiverAccount) {
+		this.receiverAccount = receiverAccount;
+	}
+
+	public Date getTransactionDate() {
+		return transactionDate;
+	}
+
+	public void setTransactionDate(Date transactionDate) {
+		this.transactionDate = transactionDate;
+	}
 
 	public static class Builder {
 
@@ -70,6 +118,7 @@ public class BankingTransaction {
 		receiverAccount = builder.receiverAccount;
 		transaction_id = builder.transaction_id;
 	}
+
 	public static long generator() {
 		Random r = new Random();
 		int Low = 100000;
@@ -77,6 +126,5 @@ public class BankingTransaction {
 		int R = r.nextInt(High - Low) + Low;
 		return R;
 	}
-
 
 }

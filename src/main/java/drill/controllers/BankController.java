@@ -1,6 +1,8 @@
 package drill.controllers;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -12,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -23,6 +24,8 @@ import drill.models.Account;
 import drill.models.BankAccountNotFoundException;
 import drill.models.BankingTransaction;
 import drill.models.CoreBankService;
+import drill.models.DummyAccount;
+import drill.models.DummyTransaction;
 
 @ComponentScan("drill.models")
 @RestController
@@ -41,45 +44,63 @@ public class BankController {
 	}
 
 	@RequestMapping(value = "/accounts", method = RequestMethod.GET)
-	public Account showAllAccounts() {
+	@ResponseBody
+	public ResponseEntity<DummyAccount> showAccounts() {
 		try {
 			Authentication auth = SecurityContextHolder.getContext()
 					.getAuthentication();
+			Account acc = coreBankService.findAccount(auth.getName());
 
-			return coreBankService.findAccount(auth.getName());
+			return new ResponseEntity<DummyAccount>(new DummyAccount(acc),
+					HttpStatus.OK);
 		} catch (BankAccountNotFoundException e) {
-			return null;
+			return new ResponseEntity<DummyAccount>(HttpStatus.BAD_REQUEST);
 		}
 	}
+
+	@RequestMapping(value = "/history", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<List<DummyTransaction>> getTransactionsHistory()
+			throws BankAccountNotFoundException {
+		Authentication auth = SecurityContextHolder.getContext()
+				.getAuthentication();
+		Account acc = coreBankService.findAccount(auth.getName());
+		List<BankingTransaction> transactions = coreBankService
+				.findTransactions(acc.getId());
+
+		return new ResponseEntity<List<DummyTransaction>>(
+				convertToDummy(transactions), HttpStatus.OK);
+	}
+
 	@RequestMapping(value = "/transfers", method = RequestMethod.POST)
 	@ResponseBody
 	@Transactional
-	public ResponseEntity<BankingTransaction> cashTransfer(
+	public ResponseEntity<DummyTransaction> cashTransfer(
 			@RequestBody Map<String, Object> map) {
 
-		long senderId = new Long((int) map.get("from"));
 		long receiverId = new Long((int) map.get("to"));
 		long amount = new Long((int) map.get("amount"));
 
 		try {
-			Account senderAccount = coreBankService.findByNumber(senderId);
+			Authentication auth = SecurityContextHolder.getContext()
+					.getAuthentication();
+			Account senderAccount = coreBankService.findAccount(auth.getName());
 			Account receiverAccount = coreBankService.findByNumber(receiverId);
 			transferMoney(senderAccount, receiverAccount, amount);
 
 			java.sql.Date sqlDate = new java.sql.Date(new Date().getTime());
 			BankingTransaction transaction = new BankingTransaction.Builder()
-					.amount(amount).receiverAccount(senderAccount)
+					.amount(amount).receiverAccount(receiverAccount)
 					.senderAccount(senderAccount)
 					.transaction_id(BankingTransaction.generator())
 					.transactionDate(sqlDate).build();
-			return new ResponseEntity<BankingTransaction>(transaction,
-					HttpStatus.OK);
+			coreBankService.saveTransaction(transaction);
+			return new ResponseEntity<DummyTransaction>(new DummyTransaction(
+					transaction), HttpStatus.OK);
 		} catch (BankAccountNotFoundException e) {
-			return new ResponseEntity<BankingTransaction>(
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<DummyTransaction>(HttpStatus.BAD_GATEWAY);
 		} catch (InsufficientFundException e) {
-			return new ResponseEntity<BankingTransaction>(
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<DummyTransaction>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -92,6 +113,15 @@ public class BankController {
 			sender.setBalance(sender.getBalance() - amount);
 			receiver.setBalance(receiver.getBalance() + amount);
 		}
+	}
+
+	public static List<DummyTransaction> convertToDummy(
+			List<BankingTransaction> transactions) {
+		List<DummyTransaction> dummyList = new ArrayList<DummyTransaction>();
+		for (BankingTransaction transaction : transactions) {
+			dummyList.add(new DummyTransaction(transaction));
+		}
+		return dummyList;
 	}
 
 }

@@ -38,7 +38,13 @@ public class CoreBankService {
 		repoAccount.save(acc);
 		return acc;
 	}
-
+	
+	public void saveTransaction(BankingTransaction transaction){
+		repoTransaction.save(transaction);
+	}
+	public List<BankingTransaction> findTransactions(long senderId){
+		return repoTransaction.findBySenderAccount_Id(senderId);
+	}
 	public List<Account> findAll() {
 		return repoAccount.findAll();
 	}

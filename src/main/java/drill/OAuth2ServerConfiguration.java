@@ -112,7 +112,7 @@ public class OAuth2ServerConfiguration {
 		@Override
 		public void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
-			http.csrf().disable().requestMatchers()
+			http.requestMatchers()
 					.antMatchers("/accounts")
 					.and()
 					.authorizeRequests()
@@ -124,6 +124,24 @@ public class OAuth2ServerConfiguration {
 					.antMatchers(HttpMethod.POST, "/accounts")
 					.access("#oauth2.isUser() and #oauth2.hasScope('"
 							+ Scope.WRITE.getLabel() + "')");
+
+			
+
+			// http.csrf()
+			// .disable()
+			// .requestMatchers()
+			// .antMatchers("/history")
+			// .and()
+			// .authorizeRequests()
+			// .antMatchers(HttpMethod.GET, "/history")
+			// .access("#oauth2.isUser() and (#oauth2.hasScope('"
+			// + Scope.READ.getLabel()
+			// + "') or #oauth2.hasScope('"
+			// + Scope.WRITE.getLabel() + "'))")
+			// .antMatchers(HttpMethod.POST, "/accounts")
+			// .access("#oauth2.isUser() and #oauth2.hasScope('"
+			// + Scope.WRITE.getLabel() + "')");
+
 			// @formatter:on
 		}
 	}

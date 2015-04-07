@@ -72,7 +72,9 @@ public class Account {
 		acc.setTransactionHistory(new ArrayList<BankingTransaction>());
 		return acc;
 	}
-
+	public Account(){
+		
+	}
 	public static long generator() {
 		Random r = new Random();
 		int Low = 100000;

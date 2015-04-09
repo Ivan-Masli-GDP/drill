@@ -1,5 +1,6 @@
 package drill.models;
 
+import drill.exception.BankAccountNotFoundException;
 import java.util.List;
 
 import javax.annotation.Resource;

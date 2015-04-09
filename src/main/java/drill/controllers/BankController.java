@@ -1,5 +1,6 @@
 package drill.controllers;
 
+import drill.exception.InsufficientFundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import drill.models.Account;
-import drill.models.BankAccountNotFoundException;
+import drill.exception.BankAccountNotFoundException;
 import drill.models.BankingTransaction;
 import drill.models.CoreBankService;
 import drill.models.DummyAccount;
@@ -45,17 +46,16 @@ public class BankController {
 
 	@RequestMapping(value = "/accounts", method = RequestMethod.GET)
 	@ResponseBody
-	public ResponseEntity<DummyAccount> showAccounts() {
-		try {
-			Authentication auth = SecurityContextHolder.getContext()
-					.getAuthentication();
-			Account acc = coreBankService.findAccount(auth.getName());
+	public ResponseEntity<DummyAccount> showAccounts()
+			throws BankAccountNotFoundException {
 
-			return new ResponseEntity<DummyAccount>(new DummyAccount(acc),
-					HttpStatus.OK);
-		} catch (BankAccountNotFoundException e) {
-			return new ResponseEntity<DummyAccount>(HttpStatus.BAD_REQUEST);
-		}
+		Authentication auth = SecurityContextHolder.getContext()
+				.getAuthentication();
+		Account acc = coreBankService.findAccount(auth.getName());
+
+		return new ResponseEntity<DummyAccount>(new DummyAccount(acc),
+				HttpStatus.OK);
+
 	}
 
 	@RequestMapping(value = "/history", method = RequestMethod.GET)
@@ -76,32 +76,28 @@ public class BankController {
 	@ResponseBody
 	@Transactional
 	public ResponseEntity<DummyTransaction> cashTransfer(
-			@RequestBody Map<String, Object> map) {
+			@RequestBody Map<String, Object> map)
+			throws BankAccountNotFoundException, InsufficientFundException {
 
 		long receiverId = new Long((int) map.get("to"));
 		long amount = new Long((int) map.get("amount"));
 
-		try {
-			Authentication auth = SecurityContextHolder.getContext()
-					.getAuthentication();
-			Account senderAccount = coreBankService.findAccount(auth.getName());
-			Account receiverAccount = coreBankService.findByNumber(receiverId);
-			transferMoney(senderAccount, receiverAccount, amount);
+		Authentication auth = SecurityContextHolder.getContext()
+				.getAuthentication();
+		Account senderAccount = coreBankService.findAccount(auth.getName());
+		Account receiverAccount = coreBankService.findByNumber(receiverId);
+		transferMoney(senderAccount, receiverAccount, amount);
 
-			java.sql.Date sqlDate = new java.sql.Date(new Date().getTime());
-			BankingTransaction transaction = new BankingTransaction.Builder()
-					.amount(amount).receiverAccount(receiverAccount)
-					.senderAccount(senderAccount)
-					.transaction_id(BankingTransaction.generator())
-					.transactionDate(sqlDate).build();
-			coreBankService.saveTransaction(transaction);
-			return new ResponseEntity<DummyTransaction>(new DummyTransaction(
-					transaction), HttpStatus.OK);
-		} catch (BankAccountNotFoundException e) {
-			return new ResponseEntity<DummyTransaction>(HttpStatus.BAD_GATEWAY);
-		} catch (InsufficientFundException e) {
-			return new ResponseEntity<DummyTransaction>(HttpStatus.BAD_REQUEST);
-		}
+		java.sql.Date sqlDate = new java.sql.Date(new Date().getTime());
+		BankingTransaction transaction = new BankingTransaction.Builder()
+				.amount(amount).receiverAccount(receiverAccount)
+				.senderAccount(senderAccount)
+				.transaction_id(BankingTransaction.generator())
+				.transactionDate(sqlDate).build();
+		coreBankService.saveTransaction(transaction);
+		return new ResponseEntity<DummyTransaction>(new DummyTransaction(
+				transaction), HttpStatus.OK);
+
 	}
 
 	@Transactional

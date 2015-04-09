@@ -117,10 +117,9 @@ public class OAuth2ServerConfiguration {
 					.and()
 					.authorizeRequests()
 					.antMatchers(HttpMethod.GET, "/accounts")
-					.access("#oauth2.isUser() and (#oauth2.hasScope('"
+					.access("#oauth2.isUser() and #oauth2.hasScope('"
 							+ Scope.READ.getLabel()
-							+ "') or #oauth2.hasScope('"
-							+ Scope.WRITE.getLabel() + "'))")
+							+ "')")
 					.antMatchers(HttpMethod.POST, "/accounts")
 					.access("#oauth2.isUser() and #oauth2.hasScope('"
 							+ Scope.WRITE.getLabel() + "')")
@@ -130,8 +129,8 @@ public class OAuth2ServerConfiguration {
 							+ "') or #oauth2.hasScope('"
 							+ Scope.WRITE.getLabel() + "'))")
 					.antMatchers(HttpMethod.POST, "/transfers")
-					.access("#oauth2.isUser() or #oauth2.hasScope(' "
-							+ Scope.READ.getLabel() + " ')");
+					.access("#oauth2.isUser() and #oauth2.hasScope('"
+							+ Scope.WRITE.getLabel() + "')");
 
 			// http.csrf()
 			// .disable()

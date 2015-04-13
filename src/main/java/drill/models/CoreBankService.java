@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +19,7 @@ public class CoreBankService {
     private AccountRepository repoAccount;
     @Resource
     private BankingTransactionRepository repoTransaction;
-
+    @Cacheable("cacheBank")
     public Account findByNumber(Long id) throws BankAccountNotFoundException {
         Account acc = repoAccount.findByAccountNumber(id);
         if (acc == null) {
@@ -27,15 +29,16 @@ public class CoreBankService {
     }
 
     @Transactional
+    @CachePut(value="cacheBank", key = "#result.id" )
     public Account updateBalance(Account updated) {
         Account toBeUpdated = repoAccount.findById(updated.getId());
         toBeUpdated.setBalance(updated.getBalance());
         return toBeUpdated;
     }
-
+    @CachePut(value="cacheBank", key = "#result.id" )
     public Account saveAccount(String username) {
         Account acc = Account.newAccount(username);
-        System.out.println("<--------->");
+        
         repoAccount.save(acc);
         return acc;
     }
@@ -51,7 +54,7 @@ public class CoreBankService {
     public List<Account> findAll() {
         return repoAccount.findAll();
     }
-
+    @Cacheable(value="cacheBank", key="#result.id")
     public Account findAccount(String username) throws BankAccountNotFoundException {
         Account acc = repoAccount.findByUsername(username);
         if (acc == null) {

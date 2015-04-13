@@ -8,6 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.boot.orm.jpa.EntityScan;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.WebApplicationInitializer;
 
 @SpringBootApplication
@@ -28,6 +31,9 @@ public class Application extends SpringBootServletInitializer implements
 	@Override
 	public void onStartup(ServletContext arg0) throws ServletException {
 		// TODO Auto-generated method stub
-
+	}
+	@Bean
+	public CacheManager cacheManager(){
+		return new ConcurrentMapCacheManager();
 	}
 }

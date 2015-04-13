@@ -16,10 +16,10 @@ public class PersistenceConfig {
 	@Bean
 	public DriverManagerDataSource dataSource() {
 		DriverManagerDataSource ds = new DriverManagerDataSource();
-		ds.setDriverClassName("oracle.jdbc.driver.OracleDriver");
-		ds.setUrl("jdbc:oracle:thin:@localhost:1522/xe");
-		ds.setUsername("ivan");
-		ds.setPassword("s1ckn355");
+		ds.setDriverClassName("com.mysql.jdbc.Driver");
+		ds.setUrl("jdbc:mysql://localhost:3306/drill_test");
+		ds.setUsername("root");
+		ds.setPassword("");
 		return ds;
 	}
 //	
@@ -27,7 +27,7 @@ public class PersistenceConfig {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
 		vendorAdapter
-				.setDatabase(org.springframework.orm.jpa.vendor.Database.ORACLE);
+				.setDatabase(org.springframework.orm.jpa.vendor.Database.MYSQL);
 		vendorAdapter.setGenerateDdl(true);
 		LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
 		factory.setJpaVendorAdapter(vendorAdapter);

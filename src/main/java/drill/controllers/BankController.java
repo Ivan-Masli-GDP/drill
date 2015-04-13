@@ -1,6 +1,5 @@
 package drill.controllers;
 
-import drill.exception.InsufficientFundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,8 +20,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import drill.models.Account;
 import drill.exception.BankAccountNotFoundException;
+import drill.exception.InsufficientFundException;
+import drill.models.Account;
 import drill.models.BankingTransaction;
 import drill.models.CoreBankService;
 import drill.models.DummyAccount;
@@ -40,8 +40,9 @@ public class BankController {
 	}
 
 	@RequestMapping(value = "/accounts", method = RequestMethod.POST)
-	public Account saveNewAccount() {
-		return coreBankService.saveAccount();
+	public Account saveNewAccount(@RequestBody Map<String, Object> map) {
+		String username = (String) map.get("usernmae");
+		return coreBankService.saveAccount(username);
 	}
 
 	@RequestMapping(value = "/accounts", method = RequestMethod.GET)

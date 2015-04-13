@@ -65,11 +65,12 @@ public class Account {
 		this.transactionHistory = transactionHistory;
 	}
 
-	public static Account newAccount() {
+	public static Account newAccount(String username) {
 		Account acc = new Account();
 		acc.setAccountNumber(generator());
 		acc.setBalance((long) 0);
 		acc.setTransactionHistory(new ArrayList<BankingTransaction>());
+		acc.setUsername(username);
 		return acc;
 	}
 	public Account(){

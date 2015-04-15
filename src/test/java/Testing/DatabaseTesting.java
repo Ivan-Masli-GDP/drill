@@ -6,7 +6,11 @@
 package Testing;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
+import java.sql.Date;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +28,7 @@ import com.github.springtestdbunit.annotation.DatabaseSetup;
 import drill.Application;
 import drill.exception.BankAccountNotFoundException;
 import drill.models.Account;
+import drill.models.BankingTransaction;
 import drill.models.CoreBankService;
 
 /**
@@ -62,21 +67,50 @@ public class DatabaseTesting {
 	@Test(expected = BankAccountNotFoundException.class)
 	public void testFindAcountNumberNotFound()
 			throws BankAccountNotFoundException {
-		Account acc = coreBankService.findByNumber((long) 12346);
-
+		
+		Account acc = coreBankService.findByNumber((long) 12347);
+		System.out.print("");
 	}
+
 	@Test
-	public void testUpdateBalance() throws BankAccountNotFoundException{
-//		updateBalance
+	public void testUpdateBalance() throws BankAccountNotFoundException {
+		// updateBalance
 		Account account = coreBankService.findAccount("ivan");
 		account.setBalance((long) 1234);
 		coreBankService.updateBalance(account);
 		Account accountUpdated = coreBankService.findAccount("ivan");
-		
 		assertEquals(accountUpdated.getBalance().longValue(), 1234);
 	}
-	
-	
-	
+
+	@Test
+	public void testSaveAccount() throws BankAccountNotFoundException {
+		coreBankService.saveAccount("new");
+		Account account = coreBankService.findAccount("new");
+		assertNotNull(account);
+		assertEquals(account.getBalance().longValue(), 0);
+
+	}
+
+//	@Test
+//	public void testSaveTransaction() throws BankAccountNotFoundException {
+//		Account sender = coreBankService.findAccount("ivan");
+//		Account receiver = coreBankService.findAccount("masli");
+//
+//		BankingTransaction transaction = new BankingTransaction();
+//		transaction.setAmount(20);
+//		transaction.setId(1);
+//		transaction.setTransaction_id(1);
+//		transaction.setReceiverAccount(receiver);
+//		transaction.setSenderAccount(sender);
+//		long time=java.util.Calendar.getInstance().getTime().getTime();
+//		transaction.setTransactionDate(new Date(time));
+//		coreBankService.saveTransaction(transaction);
+//		
+//		BankingTransaction foundTransaction = coreBankService.findTransactionById(1);
+//		assertNotNull(foundTransaction);
+//		assertEquals(foundTransaction.getSenderAccount().getUsername(),"ivan");
+//		assertEquals(foundTransaction.getReceiverAccount().getUsername(),"masli");
+//		assertEquals(foundTransaction.getAmount(),20);
+//	}
 
 }

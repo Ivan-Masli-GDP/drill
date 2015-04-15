@@ -51,9 +51,6 @@ public class CoreBankService {
         return repoTransaction.findBySenderAccount_Id(senderId);
     }
 
-    public List<Account> findAll() {
-        return repoAccount.findAll();
-    }
     @Cacheable(value="cacheBank", key="#result.id")
     public Account findAccount(String username) throws BankAccountNotFoundException {
         Account acc = repoAccount.findByUsername(username);
@@ -62,5 +59,8 @@ public class CoreBankService {
         }
         return acc;
     }
-
+    
+    public BankingTransaction findTransactionById(long id){
+    	return repoTransaction.findById(id);
+    }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,12 +17,12 @@ public class Account {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	
+
 	@Column(unique = true)
 	private Long accountNumber;
 	private String username;
 	private Long balance;
-	@OneToMany(targetEntity = BankingTransaction.class, mappedBy = "senderAccount")
+	@OneToMany(targetEntity = BankingTransaction.class, mappedBy = "senderAccount", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<BankingTransaction> transactionHistory;
 
 	public Long getId() {
@@ -73,9 +74,11 @@ public class Account {
 		acc.setUsername(username);
 		return acc;
 	}
-	public Account(){
-		
+
+	public Account() {
+
 	}
+
 	public static long generator() {
 		Random r = new Random();
 		int Low = 100000;

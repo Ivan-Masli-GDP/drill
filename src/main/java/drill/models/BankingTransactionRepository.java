@@ -9,4 +9,5 @@ public interface BankingTransactionRepository extends CrudRepository<BankingTran
 
 	//@Query("SELECT c FROM Company c INNER JOIN FETCH c.employees WHERE c.id = :senderId")
 	List<BankingTransaction> findBySenderAccount_Id(long senderId);
+	BankingTransaction findById(long id);
 }
